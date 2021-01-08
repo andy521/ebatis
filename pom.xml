@@ -57,6 +57,12 @@
         <dependency>
             <groupId>com.google.auto.service</groupId>
             <artifactId>auto-service</artifactId>
+            <!--<exclusions>
+                <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>-->
         </dependency>
     </dependencies>
 

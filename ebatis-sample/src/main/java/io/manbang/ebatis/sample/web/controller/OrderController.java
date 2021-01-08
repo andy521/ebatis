@@ -70,9 +70,9 @@ public class OrderController {
      * 创建一笔订单
      */
     @PostMapping("/createOne")
-    public  DeferredResult<String> createOne() {
+    public  DeferredResult<String> createOne(RecentOrderModel recentOrderModel) {
         DeferredResult<String> result=new DeferredResult<String>();
-        String id = recentOrderIndexMapper.indexRecentOrderString(new RecentOrderModel());
+        String id = recentOrderIndexMapper.indexRecentOrderString(recentOrderModel);
         log.info("index id:{}", id);
         result.setResult(id);
         return result;

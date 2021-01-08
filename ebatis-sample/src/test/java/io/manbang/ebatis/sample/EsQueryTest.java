@@ -283,6 +283,7 @@ public class EsQueryTest extends ESAbstractTest {
     @Test
     public void queryRecentOrderCounts() throws JsonProcessingException {
         RecentOrderCondition condition = getCondition();
+
         condition.setCargoId(10124512292966L);
         SampleRecentOrderCondition sampleRecentOrderCondition = new SampleRecentOrderCondition();
         sampleRecentOrderCondition.setCargoId(10124512292911L);

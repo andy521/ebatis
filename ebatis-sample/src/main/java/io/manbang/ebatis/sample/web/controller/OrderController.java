@@ -2,9 +2,15 @@ package io.manbang.ebatis.sample.web.controller;
 
 import io.manbang.ebatis.core.domain.Page;
 import io.manbang.ebatis.core.domain.Pageable;
+import io.manbang.ebatis.sample.entity.RecentOrder;
+import io.manbang.ebatis.sample.entity.RecentOrderModel;
 import io.manbang.ebatis.sample.mapper.OrderMapper;
+import io.manbang.ebatis.sample.mapper.RecentOrderGetMapper;
+import io.manbang.ebatis.sample.mapper.RecentOrderIndexMapper;
+import io.manbang.ebatis.sample.mapper.RecentOrderMultiGetMapper;
 import io.manbang.ebatis.sample.model.Order;
 import io.manbang.ebatis.sample.model.OrderCondition;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -21,11 +28,21 @@ import java.util.concurrent.TimeUnit;
  */
 @RestController
 @RequestMapping("/orders")
+@Slf4j
 public class OrderController {
     private final OrderMapper orderMapper;
+    private final RecentOrderGetMapper recentOrderGetMapper;
+    private final RecentOrderIndexMapper recentOrderIndexMapper;
+    private final RecentOrderMultiGetMapper recentOrderMultiGetMapper;
 
-    public OrderController(OrderMapper orderMapper) {
+//    public OrderController(OrderMapper orderMapper) {
+//        this.orderMapper = orderMapper;
+//    }
+    public OrderController(OrderMapper orderMapper, RecentOrderGetMapper recentOrderGetMapper, RecentOrderIndexMapper recentOrderIndexMapper, RecentOrderMultiGetMapper recentOrderMultiGetMapper) {
         this.orderMapper = orderMapper;
+        this.recentOrderGetMapper = recentOrderGetMapper;
+        this.recentOrderIndexMapper = recentOrderIndexMapper;
+        this.recentOrderMultiGetMapper = recentOrderMultiGetMapper;
     }
 
     @PostMapping
@@ -48,4 +65,36 @@ public class OrderController {
 
         return deferredResult;
     }
+
+    /**
+     * 创建一笔订单
+     */
+    @PostMapping("/createOne")
+    public  DeferredResult<String> createOne() {
+        DeferredResult<String> result=new DeferredResult<String>();
+        String id = recentOrderIndexMapper.indexRecentOrderString(new RecentOrderModel());
+        log.info("index id:{}", id);
+        result.setResult(id);
+        return result;
+    }
+
+    @PostMapping("/getAll")
+    public  DeferredResult<List<RecentOrder>> getAll() {
+        DeferredResult<List<RecentOrder>>  result =new DeferredResult<List<RecentOrder>> ();
+        List<RecentOrder> recentOrders = recentOrderMultiGetMapper.getRecentOrders();
+        result.setResult(recentOrders);
+        return  result;
+
+    }
+
+    @PostMapping("/getOne/{id}")
+    public  DeferredResult<RecentOrder> getOne(@PathVariable String id) {
+        DeferredResult<RecentOrder> result =new DeferredResult<RecentOrder>();
+        RecentOrder recentOrder = recentOrderGetMapper.getRecentOrder(id);
+        result.setResult(recentOrder);
+        return  result;
+
+    }
+
+
 }

@@ -4,13 +4,11 @@ import io.manbang.ebatis.core.domain.Page;
 import io.manbang.ebatis.core.domain.Pageable;
 import io.manbang.ebatis.sample.entity.RecentOrder;
 import io.manbang.ebatis.sample.entity.RecentOrderModel;
-import io.manbang.ebatis.sample.mapper.OrderMapper;
-import io.manbang.ebatis.sample.mapper.RecentOrderGetMapper;
-import io.manbang.ebatis.sample.mapper.RecentOrderIndexMapper;
-import io.manbang.ebatis.sample.mapper.RecentOrderMultiGetMapper;
+import io.manbang.ebatis.sample.mapper.*;
 import io.manbang.ebatis.sample.model.Order;
 import io.manbang.ebatis.sample.model.OrderCondition;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.rest.RestStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,15 +32,19 @@ public class OrderController {
     private final RecentOrderGetMapper recentOrderGetMapper;
     private final RecentOrderIndexMapper recentOrderIndexMapper;
     private final RecentOrderMultiGetMapper recentOrderMultiGetMapper;
+    private final RecentOrderDeleteMapper recentOrderDeleteMapper;
+    private final RecentOrderUpdateMapper recentOrderUpdateMapper;
 
 //    public OrderController(OrderMapper orderMapper) {
 //        this.orderMapper = orderMapper;
 //    }
-    public OrderController(OrderMapper orderMapper, RecentOrderGetMapper recentOrderGetMapper, RecentOrderIndexMapper recentOrderIndexMapper, RecentOrderMultiGetMapper recentOrderMultiGetMapper) {
+    public OrderController(OrderMapper orderMapper, RecentOrderGetMapper recentOrderGetMapper, RecentOrderIndexMapper recentOrderIndexMapper, RecentOrderMultiGetMapper recentOrderMultiGetMapper, RecentOrderDeleteMapper recentOrderDeleteMapper, RecentOrderUpdateMapper recentOrderUpdateMapper) {
         this.orderMapper = orderMapper;
         this.recentOrderGetMapper = recentOrderGetMapper;
         this.recentOrderIndexMapper = recentOrderIndexMapper;
         this.recentOrderMultiGetMapper = recentOrderMultiGetMapper;
+        this.recentOrderDeleteMapper = recentOrderDeleteMapper;
+        this.recentOrderUpdateMapper = recentOrderUpdateMapper;
     }
 
     @PostMapping
@@ -78,6 +80,10 @@ public class OrderController {
         return result;
     }
 
+    /**
+     * 查所用  < 有问题fixme
+     * @return
+     */
     @PostMapping("/getAll")
     public  DeferredResult<List<RecentOrder>> getAll() {
         DeferredResult<List<RecentOrder>>  result =new DeferredResult<List<RecentOrder>> ();
@@ -92,6 +98,15 @@ public class OrderController {
         DeferredResult<RecentOrder> result =new DeferredResult<RecentOrder>();
         RecentOrder recentOrder = recentOrderGetMapper.getRecentOrder(id);
         result.setResult(recentOrder);
+        return  result;
+
+    }
+    @PostMapping("/updateOne/{id}")
+    public  DeferredResult<String> update(@PathVariable String id) {
+        DeferredResult<String> result =new DeferredResult<String>();
+        RecentOrderModel recentOrderModel = new RecentOrderModel();
+        RestStatus restStatus = recentOrderUpdateMapper.updateRecentOrderRestStatus(recentOrderModel);
+        result.setResult(restStatus.name());
         return  result;
 
     }

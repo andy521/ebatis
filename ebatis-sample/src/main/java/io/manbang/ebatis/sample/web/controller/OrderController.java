@@ -2,6 +2,7 @@ package io.manbang.ebatis.sample.web.controller;
 
 import io.manbang.ebatis.core.domain.Page;
 import io.manbang.ebatis.core.domain.Pageable;
+import io.manbang.ebatis.sample.condition.RecentOrderCondition;
 import io.manbang.ebatis.sample.entity.RecentOrder;
 import io.manbang.ebatis.sample.entity.RecentOrderModel;
 import io.manbang.ebatis.sample.mapper.*;
@@ -28,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/orders")
 @Slf4j
 public class OrderController {
-    private final OrderMapper orderMapper;
+    private final RecentOrderSearchMapper recentOrderSearchMapper;
     private final RecentOrderGetMapper recentOrderGetMapper;
     private final RecentOrderIndexMapper recentOrderIndexMapper;
     private final RecentOrderMultiGetMapper recentOrderMultiGetMapper;
@@ -38,8 +39,8 @@ public class OrderController {
 //    public OrderController(OrderMapper orderMapper) {
 //        this.orderMapper = orderMapper;
 //    }
-    public OrderController(OrderMapper orderMapper, RecentOrderGetMapper recentOrderGetMapper, RecentOrderIndexMapper recentOrderIndexMapper, RecentOrderMultiGetMapper recentOrderMultiGetMapper, RecentOrderDeleteMapper recentOrderDeleteMapper, RecentOrderUpdateMapper recentOrderUpdateMapper) {
-        this.orderMapper = orderMapper;
+    public OrderController( RecentOrderSearchMapper recentOrderSearchMapper, RecentOrderGetMapper recentOrderGetMapper, RecentOrderIndexMapper recentOrderIndexMapper, RecentOrderMultiGetMapper recentOrderMultiGetMapper, RecentOrderDeleteMapper recentOrderDeleteMapper, RecentOrderUpdateMapper recentOrderUpdateMapper) {
+        this.recentOrderSearchMapper = recentOrderSearchMapper;
         this.recentOrderGetMapper = recentOrderGetMapper;
         this.recentOrderIndexMapper = recentOrderIndexMapper;
         this.recentOrderMultiGetMapper = recentOrderMultiGetMapper;
@@ -47,16 +48,25 @@ public class OrderController {
         this.recentOrderUpdateMapper = recentOrderUpdateMapper;
     }
 
-    @PostMapping
-    public Page<Order> search(@RequestBody OrderCondition condition, Pageable pageable) {
-        return orderMapper.search(condition, pageable);
+    @PostMapping("/search")
+    public Page<RecentOrder> search( RecentOrderCondition condition, Pageable pageable) {
+        return recentOrderSearchMapper.queryRecentOrderPage(pageable,condition);
     }
+    @PostMapping("/searchList")
+    public List<RecentOrder> searchList( RecentOrderCondition condition) {
+        return recentOrderSearchMapper.queryRecentOrderList(condition);
+    }
+    /*@PostMapping("/search")
+    public Page<RecentOrder> search(@RequestBody RecentOrderCondition condition, Pageable pageable) {
+        return recentOrderSearchMapper.queryRecentOrderPage(pageable,condition);
+    }*/
 
     @GetMapping("/{id}")
-    public DeferredResult<Order> findById(@PathVariable String id) {
-        DeferredResult<Order> deferredResult = new DeferredResult<>(TimeUnit.SECONDS.toMillis(30));
+    public DeferredResult<RecentOrder> findById(@PathVariable String id) {
+        ////建立DeferredResult对象，设置超时时间，以及超时返回超时结果
+        DeferredResult<RecentOrder> deferredResult = new DeferredResult<>(TimeUnit.SECONDS.toMillis(30));
 
-        orderMapper.findById(id)
+        recentOrderGetMapper.getRecentOrderCompletableFuture(id)
                 .whenComplete((order, throwable) -> {
                     if (throwable == null) {
                         deferredResult.setResult(order);

@@ -111,10 +111,9 @@ public class OrderController {
         return  result;
 
     }
-    @PostMapping("/updateOne/{id}")
-    public  DeferredResult<String> update(@PathVariable String id) {
+    @PostMapping("/updateOne")
+    public  DeferredResult<String> update(RecentOrderModel recentOrderModel) {
         DeferredResult<String> result =new DeferredResult<String>();
-        RecentOrderModel recentOrderModel = new RecentOrderModel();
         RestStatus restStatus = recentOrderUpdateMapper.updateRecentOrderRestStatus(recentOrderModel);
         result.setResult(restStatus.name());
         return  result;
